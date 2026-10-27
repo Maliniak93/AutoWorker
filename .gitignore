@@ -9,5 +9,5 @@ coverage/
 .claude/settings.local.json
 .DS_Store
 Thumbs.db
-docs/issues/
-docs/prompts/
+docs/plan/issues/
+docs/plan/prompts/
