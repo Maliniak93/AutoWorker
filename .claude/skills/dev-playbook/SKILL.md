@@ -5,21 +5,42 @@ user-invocable: false
 ---
 
 # Dev playbook
-<!-- FILL IN: replace this file's placeholders with your stack's conventions. The implementer reads it first on every Code ticket (project.config.json -> areas[Code].implementer). Keep it short and concrete: a rule an agent can follow without guessing. Delete this comment when done. -->
+
+The implementer reads this first on every Code ticket (`project.config.json` -> `areas[Code].implementer`). Stack (ADR-002): Node >= 22.18 running TypeScript through type stripping, Fastify 5 server, React + Vite client, Prettier. The application rules behind the conventions below are in `CLAUDE.md` (Application rules).
 
 ## Layout
-<!-- FILL IN: where things live. Source folders, how a feature/module is organised, where shared code goes, naming. One short list. -->
+
+- `src/server/` — the Fastify server. `main.ts` is the entry (`npm start`): it loads config, calls `buildApp(deps)` with the real tool prober and listens. `app.ts` builds the app (routes, static client); `config.ts`, `tools.ts`, `health.ts` hold the rest.
+- `src/client/` — the React SPA: `index.html`, `main.tsx`, `App.tsx`. Vite builds it to `dist/client` (not committed).
+- `src/shared/` — types both sides use (`health.ts`: `HealthResponse`).
+- `tests/` mirrors `src/` (see `testing-playbook`). Root config: `vite.config.ts` (Vite and Vitest), `tsconfig.json`, `.env.example`.
+- Names: files `kebab-case.ts`, components `PascalCase.tsx`, functions `camelCase`.
 
 ## Conventions
-<!-- FILL IN: language and framework conventions the code must follow: error handling, validation, logging, configuration, dependency rules between modules, what is forbidden. Link to the hard architecture rules in CLAUDE.md instead of repeating them. -->
+
+- Erasable TypeScript only (`erasableSyntaxOnly`): no `enum`, `namespace` or constructor parameter properties. Relative imports end in `.ts`. No `tsx` or `ts-node`, no server build step.
+- Read the environment only in `loadConfig(env)` (`src/server/config.ts`); pass values down as arguments.
+- Inject dependencies: `buildApp({ probe })` receives what it calls, so tests pass fakes.
+- Host commands (`claude`, `git`, `gh`, OS commands) go through a wrapper like `run` in `tools.ts`: `execFile`, an argument array, no `shell` option, a timeout, a fixed command name. On Windows a `.cmd` shim is started through `cmd.exe /d /s /c` with the same fixed arguments. Never build a shell string from input.
+- A host probe never throws: a failure is reported as `missing`.
+- A request error is a Fastify reply with its status code and a JSON body (`reply.code(404).send({ error: "Not Found" })` in `app.ts`), never a thrown string. A startup error (bad config, busy port) is an `Error` or a one-line message that names the variable (`PORT`) and exits 1.
+- The client talks to the server only through `/api/*` with `fetch`, typed by `src/shared/`.
 
 ## Patterns to copy
-<!-- FILL IN: for each recurring kind of change (a new endpoint, a new screen, a new job, a data migration), the one existing file or folder to copy as the precedent. -->
+
+- New endpoint -> `src/server/health.ts` (the payload builder, typed with `src/shared/`) and its route in `src/server/app.ts` (`app.get("/api/health", …)`). Test: `tests/server/health.test.ts`.
+- New screen -> `src/client/App.tsx` (`useEffect` + `fetch("/api/…")`, state typed from `src/shared/`). Test: `tests/client/App.test.tsx`.
+- Host tool call -> `src/server/tools.ts` (`probeTool`, `probeGhAuth` over `run`, never throws), passed through `buildApp({ probe })` into `getHealth`.
+- New environment variable -> read in `loadConfig` (`src/server/config.ts`), listed in `.env.example`.
 
 ## How to look an API up
+
 Libraries move faster than training data: use context7 (`resolve-library-id`, then `query-docs`) before writing an API you are not certain of, and copy the nearest existing usage when it is unreachable.
 
 ## Definition of done
-<!-- FILL IN: the checks beyond green tests that every Code change needs: generated clients or schemas regenerated, request samples or docs updated, migrations added, formatter clean. -->
+
+- `npm run build` (`tsc --noEmit` + `vite build`) is green and Prettier is clean (`npm run format:check`): the `build` and `format` verify steps.
+- Each new environment variable is in `.env.example`, commented, with no secret value.
+- A new module is added to `docs/plan/architecture.md` Components.
 - `node scripts/verify.mjs` is green for the change's scope (the implementer runs it; `ship.mjs` re-checks it).
 - A convention changed -> the matching `.claude/rules/*.md` is updated; a hard rule changed -> an ADR is appended to `docs/plan/decisions.md`.
