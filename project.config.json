@@ -1,6 +1,6 @@
 {
   "name": "AutoWorker",
-  "defaultBranch": "main",
+  "defaultBranch": "master",
   "github": {
     "owner": "Maliniak93",
     "repo": "AutoWorker",

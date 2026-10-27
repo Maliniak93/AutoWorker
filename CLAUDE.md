@@ -23,7 +23,7 @@ Web app that automates the owner's work with Claude: it replaces a pile of ad-ho
 
 ## Repo layout
 
-- `project.config.json` — the one config: name, default branch (`main`), GitHub project number, areas, verify steps.
+- `project.config.json` — the one config: name, default branch (`master`), GitHub project number, areas, verify steps.
 - `.claude/` — agents, skills (slash commands + playbooks), hooks, workflows; `settings.json` is the shared allow-list.
 - `scripts/` — Node ESM tooling (`*.mjs`, Node >= 22, no npm deps), tests beside it as `*.test.mjs`.
 - `docs/plan/` — product, architecture, decisions, ideas, workflow; `prompts/` holds `/idea` output.
@@ -31,8 +31,8 @@ Web app that automates the owner's work with Claude: it replaces a pile of ad-ho
 
 ## Hard rules
 
-- Agents never merge, never push to `main`, never force-push; only `ship.mjs` (in `/build`) and `ops` (in `/ops`) run git mutations.
-- Work happens on `feat/*`, `fix/*` or `chore/*` branches cut from `main`; `main` changes only through a merged PR.
+- Agents never merge, never push to `master`, never force-push; only `ship.mjs` (in `/build`) and `ops` (in `/ops`) run git mutations.
+- Work happens on `feat/*`, `fix/*` or `chore/*` branches cut from `master`; `master` changes only through a merged PR.
 - A spec is a GitHub issue with Tier, Kind, Area, Priority and Branch; no spec lives as a file in the repo.
 - Scripts take project values from `scripts/config.mjs`, never hardcode them, and add no npm dependency.
 - Secrets never enter the repo: `.env*` is ignored and denied to agents; commit `.env.example` only.
