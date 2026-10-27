@@ -1,23 +1,27 @@
 # AutoWorker
 
-Self-hosted web app that automates my work with Claude and manages code production for my other apps. The app itself is not designed yet; this repo currently holds the tooling that builds it: **idea → design → build → you merge**, with specs as GitHub issues on the [AutoWorker project board](https://github.com/users/Maliniak93/projects/2).
+Self-hosted web app that automates my work with Claude and manages code production for my other apps. The app is scaffolded (Fastify + React, ADR-002); this repo also holds the tooling that builds it: **idea → design → build → you merge**, with specs as GitHub issues on the [AutoWorker project board](https://github.com/users/Maliniak93/projects/2).
 
-| Command | What it does |
-| --- | --- |
-| `/idea <loose idea>` | Interviews you, challenges the idea, saves a ready prompt file (`docs/plan/prompts/<slug>.md`). Writes no code. |
-| `/design idea:<slug>` | Interviews about the technical side, drafts a spec, and after your "yes" publishes it as a GitHub issue (Status Todo, fields Tier / Kind / Area / Priority / Branch). A big idea becomes an `epic` with ordered parts. |
-| `/build #<n>` | Cuts the branch, runs test-writer → implementer → reviewer, verifies, then `ship.mjs` commits, pushes and opens the PR. You merge. |
-| `/ops <task>` | Git / PR / CI chores through the `ops` agent (the only agent that may run git mutations). |
-| `/check`, `/board`, `/prio #<n> P<k>` | Verify the tree, show the board against git, change a priority. |
+| Command                               | What it does                                                                                                                                                                                                           |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/idea <loose idea>`                  | Interviews you, challenges the idea, saves a ready prompt file (`docs/plan/prompts/<slug>.md`). Writes no code.                                                                                                        |
+| `/design idea:<slug>`                 | Interviews about the technical side, drafts a spec, and after your "yes" publishes it as a GitHub issue (Status Todo, fields Tier / Kind / Area / Priority / Branch). A big idea becomes an `epic` with ordered parts. |
+| `/build #<n>`                         | Cuts the branch, runs test-writer → implementer → reviewer, verifies, then `ship.mjs` commits, pushes and opens the PR. You merge.                                                                                     |
+| `/ops <task>`                         | Git / PR / CI chores through the `ops` agent (the only agent that may run git mutations).                                                                                                                              |
+| `/check`, `/board`, `/prio #<n> P<k>` | Verify the tree, show the board against git, change a priority.                                                                                                                                                        |
 
 ## Setup
 
-Needs Node >= 22, git and the GitHub CLI logged in with the `project` scope (`gh auth refresh -s project`). Then `node scripts/preflight.mjs` should be green. Project settings live in `project.config.json`; project instructions in `CLAUDE.md`.
+Tooling needs Node >= 22, git and the GitHub CLI logged in with the `project` scope (`gh auth refresh -s project`). Then `node scripts/preflight.mjs` should be green. Project settings live in `project.config.json`; project instructions in `CLAUDE.md`.
+
+The app runs in WSL2 or Linux; native Windows is not supported for the app. Use a checkout on the WSL filesystem (e.g. `~/code/AutoWorker`). The app needs Node >= 22.18, and its `node-pty` module needs `build-essential` and `python3`: `sudo apt install -y build-essential python3`. Then `npm ci` and `npm start`, and open `http://localhost:4280`.
+
+Docker is optional: `cp .env.example .env`, set `CLAUDE_CODE_OAUTH_TOKEN` and `GH_TOKEN`, then `docker compose up --build -d` serves the same page on `http://localhost:4280`.
 
 ## First steps for the app
 
-1. `/idea` the first thing the app should do (it will also ask about the stack).
-2. `/design idea:<slug>`: the first spec must scaffold the stack and add the Code format/build/test steps to `verify.steps` in `project.config.json`, `.claude/skills/dev-playbook`, `.claude/skills/testing-playbook`, `docs/plan/architecture.md` and the "Standard preparation" in `docs/plan/workflow.md`.
+1. Done: the first spec scaffolded the stack (ADR-002): the Fastify + React health page, the Docker runtime and the stack conventions in `dev-playbook`, `testing-playbook`, `CLAUDE.md` and "Standard preparation" in `docs/plan/workflow.md` (epic #3).
+2. `/idea` the next thing the app should do, then `/design idea:<slug>`; the spec follows the conventions in the playbooks.
 3. `/build #<n>`, review the PR, merge.
 
 ## Daily flow
@@ -52,4 +56,4 @@ See `CLAUDE.md` (Repo layout).
 - `gh` errors about a missing scope → `gh auth refresh -s project`.
 - `GITHUB_LIMIT` / exit code 4 → the GitHub API limit is used up; re-run after the printed reset time.
 - `/build` refuses with "tree holds changes that are not this spec" → commit or stash your work first; the branch is cut from the default branch.
-- Windows: run Claude Code from Git Bash or PowerShell with Node on PATH; the scripts need no shell.
+- Windows: the tooling scripts run from Git Bash or PowerShell with Node on PATH and need no shell; the app itself runs only in WSL2 or Linux.

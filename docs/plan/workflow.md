@@ -4,15 +4,15 @@ How features get designed and built. A spec is a GitHub issue on the project's *
 
 ## The board
 
-| Field / label | Values | Set by |
-|---|---|---|
-| Status (built-in) | Todo → In progress → Done | `/design` publishes at Todo; `/build` sets In progress; merging the PR closes the issue and the project's "Item closed" workflow sets Done |
-| Tier | 1, 2 | `/design`; `/build --tier` overrides for one run |
-| Kind | New, Change, Cleanup | `/design` |
-| Area | the names in `project.config.json` `areas` (none on an epic; see "Area") | `create --area`, `edit <n> --area`, `set <n> Area <v>` |
-| Priority | P0–P3 (none on a part; see "Priority") | `create --priority` (default P2), `priority <n> <P>` / `/prio` |
-| Branch | `feat/<slug>` (none on an epic) | `/design` (`create` reads the card back); a card without one is healed by `gh-project.mjs heal <n>` |
-| labels | `spec` (buildable), `epic` (umbrella of a split — its sub-issues are built, never the epic), `skip-tests` | `/design` |
+| Field / label     | Values                                                                                                    | Set by                                                                                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Status (built-in) | Todo → In progress → Done                                                                                 | `/design` publishes at Todo; `/build` sets In progress; merging the PR closes the issue and the project's "Item closed" workflow sets Done |
+| Tier              | 1, 2                                                                                                      | `/design`; `/build --tier` overrides for one run                                                                                           |
+| Kind              | New, Change, Cleanup                                                                                      | `/design`                                                                                                                                  |
+| Area              | the names in `project.config.json` `areas` (none on an epic; see "Area")                                  | `create --area`, `edit <n> --area`, `set <n> Area <v>`                                                                                     |
+| Priority          | P0–P3 (none on a part; see "Priority")                                                                    | `create --priority` (default P2), `priority <n> <P>` / `/prio`                                                                             |
+| Branch            | `feat/<slug>` (none on an epic)                                                                           | `/design` (`create` reads the card back); a card without one is healed by `gh-project.mjs heal <n>`                                        |
+| labels            | `spec` (buildable), `epic` (umbrella of a split — its sub-issues are built, never the epic), `skip-tests` | `/design`                                                                                                                                  |
 
 **The queue.** The board order is the build queue, in priority bands: P0 first, then other In progress items, then Todo P1, P2, P3 in board order. `gh-project.mjs queue` prints it; `/board` shows it against git.
 
@@ -24,23 +24,23 @@ How features get designed and built. A spec is a GitHub issue on the project's *
 
 ## Agents (`.claude/agents/*.md`)
 
-| Agent | Model / effort | Job | Returns |
-|---|---|---|---|
-| `test-writer` | Tier 1: haiku/high; Tier 2: sonnet/medium | writes failing tests from the spec's acceptance criteria and runs them filtered to confirm red | `{tests[], projects[], contextFiles[], notes[]}` |
+| Agent         | Model / effort                                                                                                                                            | Job                                                                                                                                                    | Returns                                                                                                                           |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `test-writer` | Tier 1: haiku/high; Tier 2: sonnet/medium                                                                                                                 | writes failing tests from the spec's acceptance criteria and runs them filtered to confirm red                                                         | `{tests[], projects[], contextFiles[], notes[]}`                                                                                  |
 | `implementer` | Tier 1: sonnet/medium; Tier 2: sonnet/high; Tier-1 skip-tests cleanup: haiku/high — escalating once per run to opus/medium (Tier 1) or opus/high (Tier 2) | makes the tests green, owning the design and the tests (every change to either goes in `deviations`), then runs `verify.mjs` itself with up to 3 fixes | `{status, verified, failures[], filesTouched[], projects[], commandsRun[], notes[], deviations[], openQuestions[], manualTest[]}` |
-| `reviewer` | opus/medium (Tier 1) or opus/high (Tier 2); re-reviews opus/medium | fresh context, reads the uncommitted change via `scripts/review-diff.mjs` against the spec, applies the `review-checklist` sections of the Area | `{findings[{severity, file, line, claim, evidence}], summary}` |
-| `ops` | sonnet/medium | `/ops` chores only: commits, PRs, CI triage, `.github/**` — never a merge | `{branch, commit?, prUrl?, notes[]}` |
-| `Explore` | haiku/medium | read-only codebase research for `/design` and `/idea` | text with `path:line` evidence |
-| `idea-critic` | sonnet/medium | fresh-context devil's advocate for an `/idea` prompt | ≤ 8 one-line findings, or `none` |
+| `reviewer`    | opus/medium (Tier 1) or opus/high (Tier 2); re-reviews opus/medium                                                                                        | fresh context, reads the uncommitted change via `scripts/review-diff.mjs` against the spec, applies the `review-checklist` sections of the Area        | `{findings[{severity, file, line, claim, evidence}], summary}`                                                                    |
+| `ops`         | sonnet/medium                                                                                                                                             | `/ops` chores only: commits, PRs, CI triage, `.github/**` — never a merge                                                                              | `{branch, commit?, prUrl?, notes[]}`                                                                                              |
+| `Explore`     | haiku/medium                                                                                                                                              | read-only codebase research for `/design` and `/idea`                                                                                                  | text with `path:line` evidence                                                                                                    |
+| `idea-critic` | sonnet/medium                                                                                                                                             | fresh-context devil's advocate for an `/idea` prompt                                                                                                   | ≤ 8 one-line findings, or `none`                                                                                                  |
 
 Author ≠ reviewer: the reviewer always runs in a clean context and never edits a file.
 
 ## Tier rule
 
-| Tier | When | Starting model |
-|---|---|---|
-| 1 | a precedent for this exists in the same area; well-scoped, low ambiguity | test-writer haiku/high, implementer sonnet/medium (a skip-tests cleanup: haiku/high), escalating once to opus/medium; reviewer opus/medium |
-| 2 | new pattern, cross-module work, or an algorithm | test-writer sonnet/medium, implementer sonnet/high, escalating once to opus/high; reviewer opus/high |
+| Tier | When                                                                     | Starting model                                                                                                                             |
+| ---- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | a precedent for this exists in the same area; well-scoped, low ambiguity | test-writer haiku/high, implementer sonnet/medium (a skip-tests cleanup: haiku/high), escalating once to opus/medium; reviewer opus/medium |
+| 2    | new pattern, cross-module work, or an algorithm                          | test-writer sonnet/medium, implementer sonnet/high, escalating once to opus/high; reviewer opus/high                                       |
 
 `/design` sets the tier; `/build --tier` overrides it. Escalation happens at most once per run, only upward, only after a real failure (an implementer still red after its 3 fixes).
 
@@ -56,12 +56,12 @@ The single-select project field Area says which part of the repo a ticket change
 
 The single-select field Priority says how urgent a top-level item is. A part has none and follows its epic; an item without a value counts as P2.
 
-| Level | Meaning |
-|---|---|
-| P0 | urgent: drop the queue — a broken default branch, data loss, a blocker for everything else; lifted above running work |
-| P1 | high: next in line, wanted this week or blocking a planned milestone |
-| P2 | normal: the default; planned work in board order |
-| P3 | low: nice to have, builds when nothing more urgent waits |
+| Level | Meaning                                                                                                               |
+| ----- | --------------------------------------------------------------------------------------------------------------------- |
+| P0    | urgent: drop the queue — a broken default branch, data loss, a blocker for everything else; lifted above running work |
+| P1    | high: next in line, wanted this week or blocking a planned milestone                                                  |
+| P2    | normal: the default; planned work in board order                                                                      |
+| P3    | low: nice to have, builds when nothing more urgent waits                                                              |
 
 A Todo item with priority P goes directly after the last Todo item whose priority is P or more urgent. No open item stands ahead of its open dependency (`## Depends on`): `priority`, `create`, `edit` and `move` raise the dependency into the dependent's band. `/board` shows a Priority column and warns about misplaced cards.
 
@@ -78,7 +78,9 @@ A Todo item with priority P goes directly after the last Todo item whose priorit
 The steps a person runs by hand after a merge. A spec whose change is visible in the app ends with `## Manual test`; an epic holds the whole-feature scenario in the same section. Omit it for `skip-tests` specs and cleanups. A part plan is about 5–15 steps, an epic's scenario 15–30. Shape: a numbered **Preparation** block, then numbered **Steps** on concrete values, dates and routes, each ending in `→ <expected result>`. A part with no UI effect carries only `Verified in the epic plan, step <n>.` `gh-project.mjs check` rejects a `- [ ]` line in the section.
 
 **Standard preparation** (the start of every plan):
-<!-- FILL IN: how to bring the app to a state where a plan can run: pull the default branch, start the app, create a fresh account, seed data, the local URL. -->
+
+1. **WSL2 or Linux (native run):** Node >= 22.18 on PATH, `build-essential` and `python3` installed (`sudo apt install -y build-essential python3`), `git`, `gh` logged in and `claude` on PATH. Clone the repo to `~/code/AutoWorker` (the WSL filesystem, not `/mnt/c`), then `git switch master && git pull` and `npm ci` (compiles `node-pty`). A `.env` is optional. `npm start` → the log shows the server on `127.0.0.1:4280`; the local URL is `http://localhost:4280`.
+2. **Docker variant:** in the same checkout, `cp .env.example .env` and set `CLAUDE_CODE_OAUTH_TOKEN` (and `GH_TOKEN` for `gh`), then `docker compose up --build -d` → the same URL `http://localhost:4280`. `docker compose down` when the plan is done.
 
 ## Definition of Done
 
