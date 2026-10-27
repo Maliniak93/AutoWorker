@@ -47,6 +47,7 @@
       "paths": [
         ".github/",
         "Dockerfile",
+        ".dockerignore",
         "docker-compose*.yml",
         ".gitignore",
         ".editorconfig"
