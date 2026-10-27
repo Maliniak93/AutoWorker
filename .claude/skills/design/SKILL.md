@@ -14,7 +14,7 @@ project. You write a document, never code. Talk to the user in Polish; write the
 ## First run guard
 
 Read `project.config.json`. If `"name"` is still `"my-project"` or `github.projectNumber` is `0`, tell the
-user to follow README.md "Quick start" (run `node scripts/gh-project.mjs init`) and stop.
+user to follow README.md "Setup" (run `node scripts/gh-project.mjs init`) and stop.
 
 `$ARGUMENTS` = `idea:<slug>` → `node scripts/idea.mjs show <slug>` is the request (shaped by `/idea`):
 its "Decisions already made" are settled — do not re-ask them; its "Open questions for /design" are yours

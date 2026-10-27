@@ -15,7 +15,7 @@ identifiers, routes and type names exactly as in the code.
 ## First run guard
 
 Read `project.config.json`. If `"name"` is still `"my-project"` or `github.projectNumber` is `0`, tell the
-user to follow README.md "Quick start" (run `node scripts/gh-project.mjs init`) and stop.
+user to follow README.md "Setup" (run `node scripts/gh-project.mjs init`) and stop.
 
 ## 0. Start
 
