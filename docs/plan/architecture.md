@@ -1,19 +1,19 @@
 # Architecture
 
-<!-- FILL IN: the system as it is. /design and /idea read only the sections a change touches, so keep one topic per `##` section. -->
-
 ## Overview
 
-<!-- FILL IN: what the system does and its main parts, in a paragraph and a list. -->
+The application is not designed yet; the first architecture spec (`/idea` → `/design`) decides the stack and scaffolds it. What exists today is the tooling that builds it: `scripts/` (GitHub Project and build pipeline, Node ESM) and `.claude/` (agents, skills, hooks, the `build-feature` workflow). See `docs/plan/workflow.md` for how they fit together.
 
 ## Components
 
-<!-- FILL IN: one subsection per module/service/package: responsibility, what it owns, what it talks to. -->
+None yet for the application.
 
 ## Data flow
 
-<!-- FILL IN: the main flows end to end (request path, background jobs, events). -->
+None yet for the application.
 
 ## Current vs target
 
-<!-- FILL IN: where the code deliberately differs from the intended design, one row per gap: | Area | Today | Target | -->
+| Area | Today | Target |
+| --- | --- | --- |
+| Code | no `src/`, no stack, no `package.json`; `verify.steps` holds only `scripts-test`, so a Code change is not verified yet | stack and scripts chosen by the first architecture spec, which also adds the Code `format`/`build`/`test` steps to `verify.steps` in `project.config.json` and adapts `dev-playbook` and `testing-playbook` |

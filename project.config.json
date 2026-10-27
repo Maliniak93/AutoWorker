@@ -1,10 +1,10 @@
 {
-  "name": "my-project",
-  "defaultBranch": "main",
+  "name": "AutoWorker",
+  "defaultBranch": "master",
   "github": {
-    "owner": "",
-    "repo": "",
-    "projectNumber": 0
+    "owner": "Maliniak93",
+    "repo": "AutoWorker",
+    "projectNumber": 2
   },
   "planDir": "docs/plan",
   "areas": [
@@ -33,7 +33,9 @@
         ".mcp.json"
       ],
       "tests": false,
-      "implementer": [],
+      "implementer": [
+        "claude-playbook"
+      ],
       "testWriter": [],
       "checklist": [
         "Claude"
@@ -45,7 +47,9 @@
         "scripts/"
       ],
       "tests": false,
-      "implementer": [],
+      "implementer": [
+        "scripts-playbook"
+      ],
       "testWriter": [],
       "checklist": [
         "Scripts"
@@ -61,7 +65,9 @@
         ".editorconfig"
       ],
       "tests": false,
-      "implementer": [],
+      "implementer": [
+        "ops-playbook"
+      ],
       "testWriter": [],
       "checklist": [
         "CI/Infra"
@@ -91,48 +97,11 @@
     ],
     "steps": [
       {
-        "name": "format",
-        "cmd": [
-          "npm",
-          "run",
-          "format:check"
-        ],
-        "fix": [
-          "npm",
-          "run",
-          "format"
-        ],
-        "areas": [
-          "Code"
-        ]
-      },
-      {
-        "name": "build",
-        "cmd": [
-          "npm",
-          "run",
-          "build"
-        ],
-        "areas": [
-          "Code"
-        ]
-      },
-      {
-        "name": "test",
-        "cmd": [
-          "npm",
-          "test"
-        ],
-        "areas": [
-          "Code"
-        ]
-      },
-      {
         "name": "scripts-test",
         "cmd": [
           "node",
           "--test",
-          "scripts/"
+          "scripts/*.test.mjs"
         ],
         "areas": [
           "Scripts"

@@ -1,6 +1,6 @@
-# Claude starter kit
+# AutoWorker
 
-A stack-neutral copy of the Skarbiec workflow: **idea → design → build → you merge**, with specs as GitHub issues on a GitHub Project.
+Self-hosted web app that automates my work with Claude and manages code production for my other apps. The app itself is not designed yet; this repo currently holds the tooling that builds it: **idea → design → build → you merge**, with specs as GitHub issues on the [AutoWorker project board](https://github.com/users/Maliniak93/projects/2).
 
 | Command | What it does |
 | --- | --- |
@@ -10,42 +10,15 @@ A stack-neutral copy of the Skarbiec workflow: **idea → design → build → y
 | `/ops <task>` | Git / PR / CI chores through the `ops` agent (the only agent that may run git mutations). |
 | `/check`, `/board`, `/prio #<n> P<k>` | Verify the tree, show the board against git, change a priority. |
 
-Not included (port from Skarbiec if you need them): `/fix` (bug pipeline), `autobuild` (unattended queue), e2e agent, compose tooling.
+## Setup
 
-## Quick start (about 10 minutes)
+Needs Node >= 22, git and the GitHub CLI logged in with the `project` scope (`gh auth refresh -s project`). Then `node scripts/preflight.mjs` should be green. Project settings live in `project.config.json`; project instructions in `CLAUDE.md`.
 
-1. **Copy the kit into the new project** (an empty repo with a GitHub remote is best):
-   ```
-   node bootstrap.mjs <path-to-new-project>
-   ```
-   or copy everything by hand, except `README.md` and `bootstrap.mjs`. Rename `CLAUDE.md.template` to `CLAUDE.md`.
-2. **Tools**: Node >= 22, git, and the GitHub CLI (`gh`). Log in with the project scope:
-   ```
-   gh auth login
-   gh auth refresh -s project
-   ```
-3. **GitHub repo**: the project needs a GitHub remote (`git remote add origin ...`, push the default branch once — `gh repo create` does it in one go).
-4. **Edit `project.config.json`**:
-   - `name` — the project name (also the GitHub Project title).
-   - `defaultBranch` — `main` or `master`.
-   - `areas` — which paths belong to which area (code, docs, scripts...). The area decides the build profile: whether a test-writer runs, which playbooks the agents read first, which review-checklist sections apply. Add `Backend` / `Frontend` / whatever matches your stack.
-   - `verify.steps` — the commands that define "green" (format, build, test, lint...), each tied to areas. `/check` and `/build` run only the steps that the changed files touch. `fullScope` paths (lockfiles, CI) run everything.
-   - `formatOnEdit` — optional formatter run after each file edit (default: prettier, only if installed).
-   - `preflight.extra` — extra things `/build` must have ready (a database, Docker...).
-5. **Create the GitHub Project, fields and labels** (idempotent, writes the project number back into the config):
-   ```
-   node scripts/gh-project.mjs init
-   ```
-6. **Fill in `CLAUDE.md`** (everything marked `FILL IN`: stack, commands table, hard architecture rules, conventions). Keep it short — it is loaded into every session.
-7. **Fill in the playbooks** in `.claude/skills/dev-playbook/SKILL.md` and `testing-playbook/SKILL.md` (layout, conventions, how to write and run tests). These are what the implementer and test-writer read first, so this is where most of the quality comes from. Add path-scoped rules in `.claude/rules/` (see `example.md`).
-8. **Fill in `docs/plan/`**: `product.md` (what the product is and an "Out of scope" list — `/idea` challenges ideas against it), `architecture.md`, `decisions.md` (ADRs; `/design` checks it before an architectural change).
-9. **Check the setup**:
-   ```
-   node scripts/preflight.mjs
-   node scripts/verify.mjs --all
-   node --test
-   ```
-10. **Commit the kit** on the default branch and push (`/ops commit and push the starter kit`, or by hand). `/build` cuts every branch from it.
+## First steps for the app
+
+1. `/idea` the first thing the app should do (it will also ask about the stack).
+2. `/design idea:<slug>`: the first spec must scaffold the stack and add the Code format/build/test steps to `verify.steps` in `project.config.json`, `.claude/skills/dev-playbook`, `.claude/skills/testing-playbook`, `docs/plan/architecture.md` and the "Standard preparation" in `docs/plan/workflow.md`.
+3. `/build #<n>`, review the PR, merge.
 
 ## Daily flow
 
@@ -71,21 +44,11 @@ Not included (port from Skarbiec if you need them): `/fix` (bug pipeline), `auto
 
 ## Layout
 
-```
-project.config.json       the one file you edit to adapt scripts and agents
-CLAUDE.md                 project instructions (from CLAUDE.md.template)
-.claude/agents/           idea-critic, explore, test-writer, implementer, reviewer, ops
-.claude/skills/           idea, design, build, ops, check, board, prio + playbooks + review-checklist
-.claude/workflows/        build-feature.js (the /build pipeline)
-.claude/hooks/            git-guard, format-on-edit
-.claude/rules/            path-scoped rules you add
-scripts/                  gh-project, idea, ship, verify, preflight, plan-status, areas, ...
-docs/plan/                product, architecture, decisions (ADRs), ideas, workflow
-```
+See `CLAUDE.md` (Repo layout).
 
 ## Troubleshooting
 
-- `/idea` or `/design` says the config is not set up → steps 4–5.
+- `/idea` or `/design` says the config is not set up → run `node scripts/gh-project.mjs init` (see `project.config.json` `github.projectNumber`).
 - `gh` errors about a missing scope → `gh auth refresh -s project`.
 - `GITHUB_LIMIT` / exit code 4 → the GitHub API limit is used up; re-run after the printed reset time.
 - `/build` refuses with "tree holds changes that are not this spec" → commit or stash your work first; the branch is cut from the default branch.
