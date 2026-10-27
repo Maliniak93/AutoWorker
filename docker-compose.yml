@@ -1,0 +1,31 @@
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:${PORT:-4280}:4280"
+    env_file:
+      - path: .env
+        required: false
+    # environment wins over env_file: .env's PORT/HOST only pick the host-side port,
+    # the container always listens on 0.0.0.0:4280 (matches the port mapping and healthcheck).
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "4280"
+    volumes:
+      - autoworker-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4280/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  autoworker-data:
