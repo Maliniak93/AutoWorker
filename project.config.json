@@ -12,48 +12,35 @@
       "name": "Code",
       "paths": [
         "src/",
-        "tests/"
+        "tests/",
+        "package.json",
+        "package-lock.json",
+        "tsconfig.json",
+        "vite.config.ts",
+        ".prettierrc.json",
+        ".prettierignore",
+        ".env.example"
       ],
       "tests": true,
-      "implementer": [
-        "dev-playbook"
-      ],
-      "testWriter": [
-        "testing-playbook"
-      ],
-      "checklist": [
-        "Code"
-      ]
+      "implementer": ["dev-playbook"],
+      "testWriter": ["testing-playbook"],
+      "checklist": ["Code"]
     },
     {
       "name": "Claude",
-      "paths": [
-        ".claude/",
-        "CLAUDE.md",
-        ".mcp.json"
-      ],
+      "paths": [".claude/", "CLAUDE.md", ".mcp.json"],
       "tests": false,
-      "implementer": [
-        "claude-playbook"
-      ],
+      "implementer": ["claude-playbook"],
       "testWriter": [],
-      "checklist": [
-        "Claude"
-      ]
+      "checklist": ["Claude"]
     },
     {
       "name": "Scripts",
-      "paths": [
-        "scripts/"
-      ],
+      "paths": ["scripts/"],
       "tests": false,
-      "implementer": [
-        "scripts-playbook"
-      ],
+      "implementer": ["scripts-playbook"],
       "testWriter": [],
-      "checklist": [
-        "Scripts"
-      ]
+      "checklist": ["Scripts"]
     },
     {
       "name": "CI/Infra",
@@ -65,27 +52,17 @@
         ".editorconfig"
       ],
       "tests": false,
-      "implementer": [
-        "ops-playbook"
-      ],
+      "implementer": ["ops-playbook"],
       "testWriter": [],
-      "checklist": [
-        "CI/Infra"
-      ]
+      "checklist": ["CI/Infra"]
     },
     {
       "name": "Docs",
-      "paths": [
-        "docs/",
-        "README.md",
-        "*.md"
-      ],
+      "paths": ["docs/", "README.md", "*.md"],
       "tests": false,
       "implementer": [],
       "testWriter": [],
-      "checklist": [
-        "Docs"
-      ]
+      "checklist": ["Docs"]
     }
   ],
   "verify": {
@@ -97,24 +74,30 @@
     ],
     "steps": [
       {
+        "name": "format",
+        "cmd": ["npm", "run", "format:check"],
+        "fix": ["npm", "run", "format"],
+        "areas": ["Code"]
+      },
+      {
+        "name": "build",
+        "cmd": ["npm", "run", "build"],
+        "areas": ["Code"]
+      },
+      {
+        "name": "test",
+        "cmd": ["npm", "test"],
+        "areas": ["Code"]
+      },
+      {
         "name": "scripts-test",
-        "cmd": [
-          "node",
-          "--test",
-          "scripts/*.test.mjs"
-        ],
-        "areas": [
-          "Scripts"
-        ]
+        "cmd": ["node", "--test", "scripts/*.test.mjs"],
+        "areas": ["Scripts"]
       }
     ]
   },
   "preflight": {
-    "tools": [
-      "node",
-      "git",
-      "gh"
-    ],
+    "tools": ["node", "git", "gh"],
     "extra": []
   },
   "formatOnEdit": [
@@ -130,12 +113,7 @@
         ".html",
         ".md"
       ],
-      "cmd": [
-        "npx",
-        "--no-install",
-        "prettier",
-        "--write"
-      ]
+      "cmd": ["npx", "--no-install", "prettier", "--write"]
     }
   ]
 }
