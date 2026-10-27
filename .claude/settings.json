@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "BASH_DEFAULT_TIMEOUT_MS": "600000",
+    "BASH_MAX_TIMEOUT_MS": "3600000"
+  },
+  "enableAllProjectMcpServers": true,
+  "permissions": {
+    "allow": [
+      "Workflow(build-feature)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Bash(git switch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(git worktree:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh run:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue develop:*)",
+      "Bash(gh api:*)",
+      "Bash(node scripts/ship.mjs:*)",
+      "Bash(node scripts/review-diff.mjs:*)",
+      "Bash(node scripts/verify.mjs:*)",
+      "Bash(node scripts/preflight.mjs:*)",
+      "Bash(node scripts/idea.mjs:*)",
+      "Bash(node scripts/plan-status.mjs:*)",
+      "Bash(node scripts/areas.mjs:*)",
+      "Bash(node scripts/gh-project.mjs check:*)",
+      "Bash(node scripts/gh-project.mjs prepare:*)",
+      "Bash(node scripts/gh-project.mjs report:*)",
+      "Bash(node scripts/gh-project.mjs get:*)",
+      "Bash(node scripts/gh-project.mjs list:*)",
+      "Bash(node scripts/gh-project.mjs queue:*)",
+      "Bash(node scripts/gh-project.mjs set:*)",
+      "Bash(node scripts/gh-project.mjs heal:*)",
+      "Bash(node scripts/gh-project.mjs comment:*)",
+      "Bash(node scripts/gh-project.mjs tick:*)",
+      "mcp__plugin_context7_context7",
+      "mcp__github__pull_request_read",
+      "mcp__github__pull_request_review_write",
+      "mcp__github__add_comment_to_pending_review",
+      "mcp__github__add_reply_to_pull_request_comment",
+      "mcp__github__add_issue_comment",
+      "mcp__github__list_pull_requests",
+      "mcp__github__get_me"
+    ],
+    "deny": [
+      "Read(./**/.env*)",
+      "Edit(./**/.env*)",
+      "PowerShell",
+      "mcp__github__merge_pull_request",
+      "mcp__github__delete_repository",
+      "mcp__github__delete_file",
+      "mcp__github__push_files",
+      "mcp__github__create_or_update_file"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/plan-status.mjs\" --no-gh",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/git-guard.mjs\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/format-on-edit.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "name": "my-project",
+  "defaultBranch": "main",
+  "github": {
+    "owner": "",
+    "repo": "",
+    "projectNumber": 0
+  },
+  "planDir": "docs/plan",
+  "areas": [
+    {
+      "name": "Code",
+      "paths": [
+        "src/",
+        "tests/"
+      ],
+      "tests": true,
+      "implementer": [
+        "dev-playbook"
+      ],
+      "testWriter": [
+        "testing-playbook"
+      ],
+      "checklist": [
+        "Code"
+      ]
+    },
+    {
+      "name": "Claude",
+      "paths": [
+        ".claude/",
+        "CLAUDE.md",
+        ".mcp.json"
+      ],
+      "tests": false,
+      "implementer": [],
+      "testWriter": [],
+      "checklist": [
+        "Claude"
+      ]
+    },
+    {
+      "name": "Scripts",
+      "paths": [
+        "scripts/"
+      ],
+      "tests": false,
+      "implementer": [],
+      "testWriter": [],
+      "checklist": [
+        "Scripts"
+      ]
+    },
+    {
+      "name": "CI/Infra",
+      "paths": [
+        ".github/",
+        "Dockerfile",
+        "docker-compose*.yml",
+        ".gitignore",
+        ".editorconfig"
+      ],
+      "tests": false,
+      "implementer": [],
+      "testWriter": [],
+      "checklist": [
+        "CI/Infra"
+      ]
+    },
+    {
+      "name": "Docs",
+      "paths": [
+        "docs/",
+        "README.md",
+        "*.md"
+      ],
+      "tests": false,
+      "implementer": [],
+      "testWriter": [],
+      "checklist": [
+        "Docs"
+      ]
+    }
+  ],
+  "verify": {
+    "fullScope": [
+      "package.json",
+      "package-lock.json",
+      ".github/workflows/",
+      "project.config.json"
+    ],
+    "steps": [
+      {
+        "name": "format",
+        "cmd": [
+          "npm",
+          "run",
+          "format:check"
+        ],
+        "fix": [
+          "npm",
+          "run",
+          "format"
+        ],
+        "areas": [
+          "Code"
+        ]
+      },
+      {
+        "name": "build",
+        "cmd": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "areas": [
+          "Code"
+        ]
+      },
+      {
+        "name": "test",
+        "cmd": [
+          "npm",
+          "test"
+        ],
+        "areas": [
+          "Code"
+        ]
+      },
+      {
+        "name": "scripts-test",
+        "cmd": [
+          "node",
+          "--test",
+          "scripts/"
+        ],
+        "areas": [
+          "Scripts"
+        ]
+      }
+    ]
+  },
+  "preflight": {
+    "tools": [
+      "node",
+      "git",
+      "gh"
+    ],
+    "extra": []
+  },
+  "formatOnEdit": [
+    {
+      "ext": [
+        ".ts",
+        ".tsx",
+        ".js",
+        ".mjs",
+        ".json",
+        ".css",
+        ".scss",
+        ".html",
+        ".md"
+      ],
+      "cmd": [
+        "npx",
+        "--no-install",
+        "prettier",
+        "--write"
+      ]
+    }
+  ]
+}
